@@ -14,6 +14,7 @@ Esta estructura sirve para determinar los empleados que están más conectados e
 */
 import java.io.File;
 import org.neo4j.cypher.internal.ExecutionEngine;
+import org.neo4j.graphdb.Direction;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Label;
 import org.neo4j.graphdb.Node;
@@ -42,7 +43,7 @@ public class Main {
         //Se crea una fabrica para crear bases de datos
         GraphDatabaseFactory dbFactory = new GraphDatabaseFactory();
         //Se obtiene la dirección de la base de datos, esta cambia en cada computadora:
-        File directorio = new File("C:\\Users\\Rodrigo\\Documents\\Neo4j\\default.graphdb");
+        File directorio = new File("C:\\Users\\usuario\\Documents\\Neo4j\\default.graphdb");
         //Se utiliza el objeto tipo file para ingresar al archivo del grafo
         GraphDatabaseService graphDb = dbFactory.newEmbeddedDatabase(directorio);
         graphDb.execute("MATCH (n)\n" +
@@ -359,6 +360,41 @@ public class Main {
             for(int i=0;i<size1;i++){
                 System.out.println("La "+res4.get(i)+" envió "+res6.get(i)+" correos a la "+res5.get(i));
             }
+            System.out.println("");
+            
+            //PEOPLE COMMUNICATION INCISO E
+            
+            int[] degrees= new int[14];
+            int[] order= new int[degrees.length];
+            int k=-1;
+
+            for (int i=0; i<degrees.length; i++)
+		degrees[i]=graphDb.getNodeById(i).getDegree(Direction.BOTH);
+
+            for (int i=0; i<degrees.length; i++){
+		int b1=0;
+		for(int j=0; j<degrees.length; j++){
+                    int d= degrees[j];
+                    if (d>=b1){
+			b1=d;
+			k=j;
+                    }
+		}
+            order[i]=k;
+            degrees[k]=0;
+            System.out.println("Personas ordenadas de la más comunicada a la menos comunicada: ");
+            System.out.println("");
+            //Se imprime el nombre de las personas segun el array ya ordenado
+            for(int z=0; z<14; z++){
+		System.out.println(" Per"+ (order[z]+1));
+            }
+            System.out.println("");
+	}
+
+	//LISTA DE PERSONAS YA ORDENADA, MAS A MENOS COMUNICADA
+	
+//	for(int z=0; z<degrees.lenght(); z++)
+//		System.out.println(" Per"+ (orden[z]+1));
             tx.success();
         }
         //Se cierra la base de datos para guardar todos los cambios
