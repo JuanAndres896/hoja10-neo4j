@@ -35,7 +35,9 @@ public class Main {
     public enum RelationType implements RelationshipType{
         Correos;
     }
-    static Result resultado1,resultado2,resultado3;
+    
+    static Result resultado1,resultado2,resultado3,resultado4,resultado5,resultado6;
+    
     public static void main(String[] args) {
         //Se crea una fabrica para crear bases de datos
         GraphDatabaseFactory dbFactory = new GraphDatabaseFactory();
@@ -298,22 +300,21 @@ public class Main {
             
             Relationship P14P12 = Per14.createRelationshipTo(Per12,RelationType.Correos);
             P14P12.setProperty("Cantidad",3);
-            
-            
-            
-            System.out.println("Las siguientes personas han enviado 6 correos o más:");
-            resultado1 = graphDb.execute("MATCH (P1:Persona)-[C:Correos]->(P2:Persona) WHERE C.Cantidad > 6 RETURN P1.Nombre");
-            resultado2 = graphDb.execute("MATCH (P1:Persona)-[C:Correos]->(P2:Persona) WHERE C.Cantidad > 6 RETURN P2.Nombre");
-            resultado3 = graphDb.execute("MATCH (P1:Persona)-[C:Correos]->(P2:Persona) WHERE C.Cantidad > 6 RETURN C.Cantidad");
-            
+            //Aquí se imprimen TODAS las relaciones de correos en el grafo
+            System.out.println("Aquí se muestran todas las relaciones del grafo:\n");
+            //Se hacen queries para ver todos los nodos y todas sus relaciones de Correos
+            resultado1 = graphDb.execute("MATCH (P1:Persona)-[C:Correos]->(P2:Persona) RETURN P1.Nombre");
+            resultado2 = graphDb.execute("MATCH (P1:Persona)-[C:Correos]->(P2:Persona) RETURN P2.Nombre");
+            resultado3 = graphDb.execute("MATCH (P1:Persona)-[C:Correos]->(P2:Persona) RETURN C.Cantidad");
+            //El objeto Result puede devolver un iterador con el metodo .columnAs()
             Iterator<String>r1=resultado1.columnAs("P1.Nombre");
             Iterator<String>r2=resultado2.columnAs("P2.Nombre");
             Iterator<String>r3=resultado3.columnAs("C.Cantidad");
-            
+            //Se crearon listas para insertar los datos del iterador
             LinkedList<String> res1 = new LinkedList();
             LinkedList<String> res2 = new LinkedList();
             LinkedList<Object> res3 = new LinkedList();
-            
+            //Se agregan los datos a la lista
             while (r1.hasNext()){
                 res1.add(r1.next());
             }
@@ -323,11 +324,40 @@ public class Main {
             while (r3.hasNext()){
                 res3.add(r3.next());
             }
+            //Tamaño de la lista
+            int size2 = res1.size();
+            //Impresión de la consulta
+            for(int i=0;i<size2;i++){
+                System.out.println("La "+res1.get(i)+" envió "+res3.get(i)+" correos a la "+res2.get(i));
+            }
+            //Se hace exactamente lo mismo, pero ahora la condicion es que el mínimo de correos es de 6
+            System.out.println("\n\nLas siguientes personas han enviado 6 correos o más:\n");
+            resultado4 = graphDb.execute("MATCH (P1:Persona)-[C:Correos]->(P2:Persona) WHERE C.Cantidad > 6 RETURN P1.Nombre");
+            resultado5 = graphDb.execute("MATCH (P1:Persona)-[C:Correos]->(P2:Persona) WHERE C.Cantidad > 6 RETURN P2.Nombre");
+            resultado6 = graphDb.execute("MATCH (P1:Persona)-[C:Correos]->(P2:Persona) WHERE C.Cantidad > 6 RETURN C.Cantidad");
             
-            int size1 = res1.size();
+            Iterator<String>r4=resultado4.columnAs("P1.Nombre");
+            Iterator<String>r5=resultado5.columnAs("P2.Nombre");
+            Iterator<String>r6=resultado6.columnAs("C.Cantidad");
+            
+            LinkedList<String> res4 = new LinkedList();
+            LinkedList<String> res5 = new LinkedList();
+            LinkedList<Object> res6 = new LinkedList();
+            
+            while (r4.hasNext()){
+                res4.add(r4.next());
+            }
+            while (r5.hasNext()){
+                res5.add(r5.next());
+            }
+            while (r6.hasNext()){
+                res6.add(r6.next());
+            }
+            
+            int size1 = res4.size();
             
             for(int i=0;i<size1;i++){
-                System.out.println("La "+res1.get(i)+" envió "+res3.get(i)+" correos a la "+res2.get(i));
+                System.out.println("La "+res4.get(i)+" envió "+res6.get(i)+" correos a la "+res5.get(i));
             }
             tx.success();
         }
