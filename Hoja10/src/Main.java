@@ -19,10 +19,12 @@ import org.neo4j.graphdb.Label;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
 import org.neo4j.graphdb.RelationshipType;
+import org.neo4j.graphdb.Result;
 import org.neo4j.graphdb.Transaction;
 import org.neo4j.graphdb.factory.GraphDatabaseFactory;
 import org.neo4j.logging.LogProvider;
-
+import java.util.LinkedList;
+import java.util.Iterator;
 public class Main {
     
     //Se crea una enumeración tipo nodo que implementa a Label
@@ -33,7 +35,7 @@ public class Main {
     public enum RelationType implements RelationshipType{
         Correos;
     }
-    
+    static Result resultado1,resultado2,resultado3;
     public static void main(String[] args) {
         //Se crea una fabrica para crear bases de datos
         GraphDatabaseFactory dbFactory = new GraphDatabaseFactory();
@@ -41,14 +43,9 @@ public class Main {
         File directorio = new File("C:\\Users\\Rodrigo\\Documents\\Neo4j\\default.graphdb");
         //Se utiliza el objeto tipo file para ingresar al archivo del grafo
         GraphDatabaseService graphDb = dbFactory.newEmbeddedDatabase(directorio);
-        /*
-        Esto que está aquí lo iba a poner para que se eliminara todo de la base de datos desde el principio,
-        si pueden busquen como arreglarlo que a mi no me salio:
-        
-        LogProvider logProvider = new LogProvider()
-        ExecutionEngine engine = new ExecutionEngine(graphDb,logProvider);
-        ExecutionResult result;
-        */
+        graphDb.execute("MATCH (n)\n" +
+"OPTIONAL MATCH (n)-[r]-()\n" + 
+"DELETE n,r");
         
         
         //Se intenta realizar una transacción u operación en Neo4j
@@ -301,7 +298,37 @@ public class Main {
             
             Relationship P14P12 = Per14.createRelationshipTo(Per12,RelationType.Correos);
             P14P12.setProperty("Cantidad",3);
-           
+            
+            
+            
+            System.out.println("Las siguientes personas han enviado 6 correos o más:");
+            resultado1 = graphDb.execute("MATCH (P1:Persona)-[C:Correos]->(P2:Persona) WHERE C.Cantidad > 6 RETURN P1.Nombre");
+            resultado2 = graphDb.execute("MATCH (P1:Persona)-[C:Correos]->(P2:Persona) WHERE C.Cantidad > 6 RETURN P2.Nombre");
+            resultado3 = graphDb.execute("MATCH (P1:Persona)-[C:Correos]->(P2:Persona) WHERE C.Cantidad > 6 RETURN C.Cantidad");
+            
+            Iterator<String>r1=resultado1.columnAs("P1.Nombre");
+            Iterator<String>r2=resultado2.columnAs("P2.Nombre");
+            Iterator<String>r3=resultado3.columnAs("C.Cantidad");
+            
+            LinkedList<String> res1 = new LinkedList();
+            LinkedList<String> res2 = new LinkedList();
+            LinkedList<Object> res3 = new LinkedList();
+            
+            while (r1.hasNext()){
+                res1.add(r1.next());
+            }
+            while (r2.hasNext()){
+                res2.add(r2.next());
+            }
+            while (r3.hasNext()){
+                res3.add(r3.next());
+            }
+            
+            int size1 = res1.size();
+            
+            for(int i=0;i<size1;i++){
+                System.out.println("La "+res1.get(i)+" envió "+res3.get(i)+" correos a la "+res2.get(i));
+            }
             tx.success();
         }
         //Se cierra la base de datos para guardar todos los cambios
