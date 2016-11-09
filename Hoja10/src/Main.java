@@ -382,19 +382,16 @@ public class Main {
 		}
             order[i]=k;
             degrees[k]=0;
+            }
+            
             System.out.println("Personas ordenadas de la más comunicada a la menos comunicada: ");
             System.out.println("");
             //Se imprime el nombre de las personas segun el array ya ordenado
-            for(int z=0; z<14; z++){
-		System.out.println(" Per"+ (order[z]+1));
+            for(int z=0; z<degrees.length; z++){
+		System.out.println(" Persona "+ (order[z]+1));
             }
             System.out.println("");
-	}
-
-	//LISTA DE PERSONAS YA ORDENADA, MAS A MENOS COMUNICADA
 	
-//	for(int z=0; z<degrees.lenght(); z++)
-//		System.out.println(" Per"+ (orden[z]+1));
             tx.success();
         }
         //Se cierra la base de datos para guardar todos los cambios
