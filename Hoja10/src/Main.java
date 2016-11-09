@@ -26,6 +26,8 @@ import org.neo4j.graphdb.factory.GraphDatabaseFactory;
 import org.neo4j.logging.LogProvider;
 import java.util.LinkedList;
 import java.util.Iterator;
+import java.util.Scanner;
+import java.util.Vector;
 public class Main {
     
     //Se crea una enumeración tipo nodo que implementa a Label
@@ -391,6 +393,100 @@ public class Main {
 		System.out.println(" Persona "+ (order[z]+1));
             }
             System.out.println("");
+            
+            //INCISO F
+            //INCISO CHEPE LUIS
+        
+            //SE CREA VECTOR CON LOS IDs
+            Vector<Integer> vectorID= new Vector<>();
+            Vector<Long> vectorCant= new Vector<>();
+            for(int i=0; i<196; i++){
+                try{
+                    Relationship rel= graphDb.getRelationshipById(i);
+                    long cantidad = (long) rel.getProperty("Cantidad");
+                    vectorID.addElement(i);
+                    vectorCant.addElement(cantidad); 
+                }catch(Exception e){
+                    
+                }
+            }
+        
+            //SCANNER PARA SOLICITAR LOS DATOS
+            Scanner scan= new Scanner(System.in);
+            int indNodo;
+            int fNodo;
+        
+            //INGRESO DE LA PERSONA DE BÚSQUEDA
+            System.out.println("Ingrese el número de la persona origen: ");
+            indNodo= scan.nextInt() - 1;
+            int iNodo=indNodo;
+        
+            //INGRESO DE LA PERSONA DESTINO
+            System.out.println("Ingrese el número de la persona destino (para mostrar todas las relaciones ingrese 0): ");
+            fNodo= scan.nextInt() - 1;
+				
+            //ARRAYS PARA ALMACENAMIENTO DE VALORES
+            long[] nodos= {9999,9999,9999,9999,9999,9999,9999,9999,9999,9999,9999,9999,9999,9999};
+            boolean[] temps={false,false,false,false,false,false,false,false,false,false,false,false,false,false};
+            int[] desde= new int[14];
+			
+            nodos[indNodo]=0;
+            desde[indNodo]=indNodo;
+			
+            for(int z=0; z<14; z++){
+            //establecer nodos temporales
+                for(int i=0; i<vectorID.size(); i++){
+                    Relationship relation = graphDb.getRelationshipById(vectorID.get(i));
+                    int nA= (int)relation.getStartNode().getId();
+                    int nB= (int)relation.getEndNode().getId();
+                    long l1= (long) relation.getProperty("Cantidad");
+                    //Se almacena temporalmente todas las relaciones entre los nodos
+                    if(nA==indNodo){
+                        if (nodos[nB]>(nodos[indNodo]+l1)){
+                            nodos[nB]=nodos[indNodo]+l1;
+                            desde[nB]=indNodo;
+                        }
+                    }
+                }
+                // Se encuentra el menor de los nodos temporales
+                long b= 10000;
+                int  m =-1;
+                for(int j=0; j<nodos.length; j++){
+                    long d= nodos[j];
+                    if(temps[j]==false){
+                        if (d<=b){
+                            b=d;
+                            m=j;
+                        }
+                    }
+                }
+					
+                // establecer minimo como fijo
+                temps[m]=true;
+                // cambiar nodo de partida
+                indNodo=m;						
+            } 
+         
+            if (fNodo==-1){
+                //para todos los nodos
+                for (int i=0; i<14; i++){
+                    long cco= nodos[i];
+                    if(cco==9999)
+                        System.out.println("Persona "+(iNodo+1)+" no ha mandado correos a Persona "+(i+1));
+                    else	
+                        System.out.println("La cantidad mínima de correos enviados de Persona "+(iNodo+1)+" a Persona"+(i+1)+" es: "+cco);
+                }
+            }else{
+                //dado un nodo destino 
+                long cor=nodos[fNodo];
+                //Si la correlacion nunca fue modificada
+                if(cor==9999)
+                    System.out.println("Persona "+(iNodo+1)+" no ha mandado correos a Persona "+(fNodo+1));
+                else
+                    //Caso contrario
+                    System.out.println("La cantidad mínima de correos enviados de Persona "+(iNodo+1)+" a Persona"+(fNodo+1)+" es: "+cor);
+            }
+    
 	
             tx.success();
         }
