@@ -13,7 +13,7 @@ Este programa recoje la cantidad de correos enviados entre 14 empleados de una e
 Esta estructura sirve para determinar los empleados que están más conectados entre sí y los que se mantienen más  aislados.
 */
 import java.io.File;
-import org.neo4j.cypher.internal.ExecutionEngine;
+import java.util.ArrayList;
 import org.neo4j.graphdb.Direction;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Label;
@@ -23,11 +23,15 @@ import org.neo4j.graphdb.RelationshipType;
 import org.neo4j.graphdb.Result;
 import org.neo4j.graphdb.Transaction;
 import org.neo4j.graphdb.factory.GraphDatabaseFactory;
-import org.neo4j.logging.LogProvider;
 import java.util.LinkedList;
 import java.util.Iterator;
 import java.util.Scanner;
 import java.util.Vector;
+import org.graphstream.graph.Graph;
+import org.graphstream.graph.implementations.MultiGraph;
+import org.graphstream.graph.implementations.SingleGraph;
+import org.graphstream.algorithm.PageRank;
+import org.graphstream.algorithm.generator.DorogovtsevMendesGenerator;
 public class Main {
     
     //Se crea una enumeración tipo nodo que implementa a Label
@@ -486,7 +490,37 @@ public class Main {
                     //Caso contrario
                     System.out.println("La cantidad mínima de correos enviados de Persona "+(iNodo+1)+" a Persona"+(fNodo+1)+" es: "+cor);
             }
-    
+         // Inciso D
+         /* Page Rank */
+         
+         Graph grafo2 = new SingleGraph("Comunicaciones");
+         ArrayList<String> rank = new ArrayList();
+         ArrayList<Empleado> rankEmpleados = new ArrayList();
+         rankEmpleados.clear();
+         PageRank pageRank = new PageRank();
+         pageRank.setVerbose(true);
+         pageRank.init(grafo2);
+         for(org.graphstream.graph.Node node:grafo2){
+             double rank_1 = pageRank.getRank(node);
+                rank_1 = rank_1*100;
+                rank.add(""+rank_1+"%"+node.getId());
+                int n = (int)rank_1;
+                Empleado e = new Empleado(n,node.getId());
+                rankEmpleados.add(e);
+         }
+         rank.sort(null);
+         rankEmpleados.sort(null);
+         String x="";
+         int i=0;
+         for(Empleado e:rankEmpleados){
+             x=x+rankEmpleados.get(i).getNombre()+": "+rankEmpleados.get(i).getNum()+"\n";
+             i++;
+             System.out.println(x);
+         }
+         
+         
+         
+         
 	
             tx.success();
         }
